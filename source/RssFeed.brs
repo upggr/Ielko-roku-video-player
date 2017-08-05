@@ -282,26 +282,6 @@ Function parseRssHeader (xml As Object) As Object
 
     header = {}
 
-    ' <title>           - Title
-    ' <link>
-    ' <description>     - Description
-    ' <language>
-    ' <copyright>
-    ' <managingEditor>  - Director (only if not email address)
-    ' <webMaster>
-    ' <pubDate>         - ReleaseDate
-    ' <lastBuildDate>
-    ' <category>        - Categories (genres)
-    ' <generator>
-    ' <docs>
-    ' <cloud>
-    ' <ttl>
-    ' <image>           - SDPosterUrl/HDPosterUrl
-    ' <rating>
-    ' <textInput>
-    ' <skipHours>
-    ' <skipDays>
-
     header.title = _getXmlString (xml, "title")
 
     header.description = _getXmlString (xml, "description")
@@ -330,25 +310,10 @@ Function parseRssHeader (xml As Object) As Object
 
 End Function
 
-'
-' Parse an RSS 2.0 <item> element, as described in http://www.rssboard.org/rss-specification
-' These items are common to all <item> elements.
-' Only the RSS-specific <item> elements are returned.
-'
 Function parseRssItem (xml As Object) As Object
 
     item = {}
 
-    ' <title>           - Title
-    ' <link>            - Streams
-    ' <description>     - Description
-    ' <author>
-    ' <category>        - Categories (genres)
-    ' <comments>
-    ' <enclosure>       - Streams
-    ' <guid>            - Streams
-    ' <pubDate>         - ReleaseDate
-    ' <source>
 
     item.title = _getXmlString (xml, "title")
 
@@ -381,22 +346,10 @@ Function parseRssItem (xml As Object) As Object
 
 End Function
 
-'
-' Format an RFC 822 or RFC 2822 RSS pubDate element (with 2 or 4-digit year) for display as a ReleaseDate Content Meta-Data Item.
-' https://www.ietf.org/rfc/rfc0822.txt (specified by RSS 2.0).
-' https://www.ietf.org/rfc/rfc2822.txt (specified by Apple for their iTunes podcasts).
-' Since some RSS feeds' pubDates don't conform to the RFC 822 or 2822 specifications,
-' this function is very generic, and will even parse an invalid pubDate.
-' Return just the date part (day, month and year), dropping the day-of-week and the time parts.
-' The date returned can be in any format since it is mapped to the ReleaseDate Content Item Meta-Data attribute,
-' which is just a text string in any format.
-'
 Function formatPubDate (pubDate As String) As String
 
     returnDate  = ""
 
-    ' Read up to the first comma and any immediately following whitespace, but don't capture.
-    ' Capture the date, everything up to the first colon, which may be preceded by whitespace and digits.
     matchList = CreateObject ("roRegex", "(?:[^,]*,)?\s*(.*?)\s*\d*:", "i").Match (pubDate)
 
     If matchList.Count () > 1

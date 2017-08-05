@@ -18,11 +18,7 @@
 ' elements 'inherit' the optional items from their ancestors.
 '
 Function parseMrssFeedXml (xml As Object) As Object
-
-    ' Only optional elements are permitted outside the <item> elements
     feed = parseMrssHeader (xml)
-
-    ' Parse all <item> elements
     feed.itemList = []
     For Each item in xml.GetNamedElementsCI ("item")
         feed.itemList.Push (parseMrssItem (item))
@@ -31,10 +27,6 @@ Function parseMrssFeedXml (xml As Object) As Object
     Return feed
 
 End Function
-
-'
-' MRSS optional elements may appear under the RSS <channel> element, outside of any <item> elements
-'
 Function parseMrssHeader (xml As Object) As Object
 
     header = {}
@@ -44,38 +36,15 @@ Function parseMrssHeader (xml As Object) As Object
     Return header
 
 End Function
-
-'
-' An MRSS <item> element may contain <media:group>, <media:content>, and optional elements.
-'
-' Returns:
-'   item.options is the set of MRSS optional elements immediately under the <item> element.
-'   item.mediaContentList is a list of, hopefully, Roku-compatible video streams.
-'   item.duration is the content's duration obtained from the media:content attributes.
-'   item.fullHD will be True if any media content is in full HD (height > 720 pixels).
-'   item.streamFormat will either be "mp4" or "hls" depending on the type of video streams found.
-'
 Function parseMrssItem (xml As Object) As Object
-
     item = {}
-
-    ' First, parse any optional elements.
-    ' These optionals act as defaults for any subordinate media group and media content items.
-    ' If we find any Roku-compatible video streams, then we'll use the first stream's optional elements
-    ' instead of the item's default optional elements.
     item.optionals = parseMrssOptionalElements (xml)
     item.mediaContentList = []
     item.duration = 0
     item.fullHD = False
     item.streamFormat = ""
-
     mediaGroupList = []
-
-    ' Parse the "default" media group. This isn't actually a <media:group>, but the set of <media:content> items outside all media groups,
-    ' but use the same code to handle this case
     mediaGroupList.Push (parseMrssMediaGroup (xml, item.optionals))
-
-    ' Parse "<media:group>" elements
     For Each mediaGroupXml In xml.GetNamedElementsCI ("media:group")
         mediaGroupList.Push (parseMrssMediaGroup (mediaGroupXml, item.optionals))
     End For
@@ -304,37 +273,6 @@ End Function
 Function parseMrssOptionalElements (xml As Object) As Object
 
     optionals = {}
-
-    ' media:adult
-    ' media:rating          - Rating
-    ' media:title           - Title
-    ' media:description     - Description
-    ' media:keywords        - Categories (genres)
-    ' media:thumbnail       - SDImageUrl/HDImageUrl
-    ' media:category
-    ' media:hash
-    ' media:player
-    ' media:credit          - Director/Actors
-    '   [Use separate 'director' string and 'actors' array]
-    ' media:copyright
-    ' media:text
-    ' media:restriction
-    ' media:community
-    ' media:comments
-    ' media:embed
-    ' media:responses
-    ' media:backLinks
-    ' media:status
-    ' media:price
-    ' media:license
-    ' media:subTitle        - ShortDescriptionLine2
-    ' media:peerLink
-    ' media:rights
-    ' media:scenes
-
-    ' MRSS media ratings may contain a scheme attribute, e.g. "urn:simple" (adult/nonadult),
-    ' or "urn:vchip" (TV-G, TV-PG, TV-14, etc.)
-    ' Combine all urn:vchip ratings (and any "adult" rating) into a single rating string.
     optionals.rating = ""
     ratingList = []
     For Each ratingItem In xml.GetNamedElementsCI ("media:rating")
@@ -400,16 +338,6 @@ Function parseMrssOptionalElements (xml As Object) As Object
             If role = "editor" Then optionals.director = name
         End For
     End If
-    REM If optionals.director = ""
-        REM For Each credit In creditList
-            REM name = credit.GetText ().Trim ()
-            REM role = LCase (_getXmlAttrString (credit, "role"))
-            REM If role = "author" Then optionals.director = name
-        REM End For
-    REM End If
-
-    ' Roku supports multiple Actors.
-    ' Use any credits with a role other than "director", "producer", "editor", and "author".
     optionals.actorsList = []
     For Each credit In creditList
         name = credit.GetText ().Trim ()
@@ -424,13 +352,6 @@ Function parseMrssOptionalElements (xml As Object) As Object
     Return optionals
 
 End Function
-
-'
-' Convert an MRSS duration ("h:mm:ss") to an integer in seconds
-' Note, according to the MRSS specification, the duration is expressed an integer number of seconds;
-' however, some RSS feeds use an mm:ss string.
-' Assume, if no colons, that the duration is in seconds, otherwise h:mm:ss or mm:ss
-'
 Function formatMrssDuration (duration As String) As Integer
     seconds = 0
     hh = 0 : mm = 0 : ss = 0

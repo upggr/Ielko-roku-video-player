@@ -61,17 +61,6 @@ Function readXml (xmlPath As String) As Object
 
 End Function
 
-'
-' Parse a <categories> Xml document or <category> element, returning a content item that will contain a list of child content items.
-' No separate data structures are used to represent the hierarchical content tree.
-' All data is contained in Content Meta-Data objects.
-' For a given node in the tree, the Content Meta-Data fields are filled in with whatever is needed to render a representation
-' of that node on a screen (Title, Description, SDPosterUrl, etc.)
-' Additional custom Content Meta-Data fields (prefixed with "xx") are used to contain the node's child nodes (xxChildContentList),
-' and to indicate what type of nodes those children represent (xxFeedPath).
-' <feed> elements may either be located within a category's Xml document, or read from an external Xml document (xxFeedPath contains its location).
-' External Xml documents are not read until they need to be displayed. After that, they remain in memory (xxIsCached set to True).
-'
 Function parseCategoryXml (xmlPath As String, categoryXml As Object) As Object
 
     ' Return a single content item for the <categories> or <category> element that will include a list of any child items in xxChildContentList
@@ -315,3 +304,4 @@ Function parseFeedXml (xml As Object) As Object
     Return contentItem
 
 End Function
+

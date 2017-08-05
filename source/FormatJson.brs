@@ -23,33 +23,6 @@
 ' (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ' SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '-------------------------------------------------------------------------------------------------------------------------
-
-' Usage:
-'
-'
-' References:
-'   JSON    : ECMA-404 (informal) / RFC 4627 (obsolete - referenced in Roku docs) / RFC 7159 (latest)
-'   UTF-8   : RFC 3629
-'   UTF-16  : ISO/IEC 10646 Annex Q, and RFC 2781
-'
-' Notes:
-' - In accordance with RFC 7159, any supported data type may be formatted, not just objects and arrays
-' - Json escape sequences (\.) are used for: quote (34), backslash (92), backspace (98), form-feed (12), line-feed (10), carriage return (13), tab (9)
-' - By default, a forward slash is not escaped; it optionally may be backslash-escaped (\/)
-' - All non-printable characters other than Json backslash-escaped characters are Unicode-escaped (\uhhhh)
-' - All valid RFC 3629 UTF-8 sequences (1 to 4 octets) should be correctly handled
-' - All invalid UTF-8 sequences should be detected and substituted with the Unicode 'Replacement character' (U+FFFD)
-' - Unicode code points desigated as noncharacters "intended for process-internal uses" (e.g. U+FFFE, U+FFFF) are allowed and are Unicode-escaped
-' - In accordance with ISO/IEC 10646, all invalid Unicode code points are detected and substituted with the Unicode 'Replacement character' (U+FFFD)
-' - Roku strings cannot contain embedded nulls. If your data contains embedded nulls, read it into an roByteArray
-' - By default, an roByteArray is formatted as a character string (embedded nulls allowed); it optionally may be formatted as an array of unsigned integers
-' - Unlike Roku's FormatJson function, works on all known Roku models and firmware versions (including fw. 3)
-' - Unlike Roku's FormatJson function, handles all valid UTF-8 sequences
-' - Designed to handle Unicode character data; therefore, should not be used to format arbitrary binary data (which may contain data that is not valid Unicode)
-' - Self-referential objects/circular references, etc., are not checked for and will result in a stack overflow; they're not supposed to be representable in Json anyway
-
-' TODO: byte arrays containing nulls (substitute with DEL characters???)
-
 function createJsonFormatter () as object
     this = {}                                   ' The JsonFormatter object returned from this function
     this.ba = CreateObject ("roByteArray")      ' The main byte array holds the formatted json string in byte form; it is converted to ASCII at the end
@@ -63,38 +36,17 @@ function createJsonFormatter () as object
     this.baHex = CreateObject ("roByteArray")   ' Hex integer to String conversion
     this.baHex.SetResize (4, false)             ' Only need 2 bytes for a hex number, but allow 4 just in case larger numbers handled eventually
     this.stats = {}
-
-    ' < 0   => non-printing character (use Unicode-encoding)
-    ' = 0   => ASCII printable character
-    ' > 0   => escaped character (use backslash-encoding)
-    '
-    ' 8     - BS    \b
-    ' 9     - TAB   \t
-    ' 10    - LF    \n
-    ' 12    - FF    \f
-    ' 13    - CR    \r
-    ' 34    - "     \"
-    ' 47    - /     \/  [not escaped by default, unless SetEscapeSolidus (true) called]
-    ' 92    - \     \\
     this.esc = [-1, -1, -1, -1, -1, -1, -1, -1, 98, 116, 110, -1, 102, 114, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 34,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, this.solidus, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 92, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1 ]
-
-    ' Main formatting function. Returns a Json-formatted string from a BrightScript value
     this.FormatJson = function (j as dynamic) as string
             m.ba.Clear ()
             m.formatValue (m.ba, j)
             return m.ba.ToAsciiString ()
     end function
-
-    ' Set the character used to substitute for invalid UTF-8 octets
-    ' Default is "\uFFFD", the Unicode 'Replacement character'
-    ' Use "" to skip invalid octets
     this.SetReplacementChar = function (replacement = "\uFFFD" as string)
             this.replacementChar = replacement
     end function
-
-    ' Escaping the solidus is optional
     this.SetEscapeSolidus = function (escape = false as boolean)
             if escape
                 m.solidus = 47
@@ -103,19 +55,13 @@ function createJsonFormatter () as object
             endif
             m.esc [47] = m.solidus
     end function
-
-    '
     this.SetByteArrayAsString = function (baAsString = true as boolean)
             m.baAsString = baAsString
     end function
-
-    ' Convert a string value to bytes and append to the main byte array
     this.baAppend = function (s as string)
             m.baAppendItem.FromAsciiString (s)
             m.ba.Append (m.baAppendItem)
     end function
-
-    ' Debugging code only
     this.inc = function (s as string)
         key = m.stats.Lookup (s)
         if key = invalid
@@ -124,8 +70,6 @@ function createJsonFormatter () as object
             m.stats [s] = m.stats [s] + 1
         endif
     end function
-
-    ' Debugging code only
     this.printStats = function ()
         for each key in m.stats
             print key, m.stats [key]

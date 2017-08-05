@@ -25,10 +25,6 @@
 Function getRokuContent (xml As Object) As Object
 
     contentItem = {}
-
-    ' Parse the entire Roku feed returning a temporary 'roku' data structure that
-    ' contains the header info (e.g "title), and an array, itemList, containing
-    ' an element for each <item>
     roku = parseRokuFeedXml (xml)
 
     ' Use a fixed-length array for storing the content item list
@@ -253,58 +249,11 @@ Function parseRokuHeader (xml As Object) As Object
     If header.sdImg = "" Then header.sdImg = _getXmlAttrString (xml, "sdImg")
     header.hdImg = _getXmlAttrString (xml, "hd_img")
     If header.hdImg = "" Then header.hdImg = _getXmlAttrString (xml, "hdImg")
-    ' If sdImg missing then use hdImg and vice-versa
     If header.sdImg = "" Then header.sdImg = header.hdImg
     If header.hdImg = "" Then header.hdImg = header.sdImg
-
-    ' <resultLength> - not currently used - feed paging is not currently implemented
-
-    ' <endIndex> - not currently used
-
     Return header
 
 End Function
-
-'
-' Parse a single <item> element for a Roku <feed>
-'
-' Standard item attributes and elements (from Roku videoplayer SDK example):
-'
-'   <item> attributes:
-'       sdImg                   - SD image path (if missing, defaults to hdImg)
-'       hdImg                   - HD image path (if missing, defaults to sdImg)
-'
-'   <item> elements:
-'       <title>                 - Item title
-'       <contentId>             - Uniquely identifies the item for bookmarking and Roku logging (defaults to hash of media streamUrl)
-'       <contentType>           - "episode" (or "Talk") for roSpringboardScreen artwork in landscape, otherwise "movie" for portrait
-'       <contentQuality>        - SD (default) or HD - used if media streamQuality is not set
-'       <media>                 - One element per media stream. Several media streams of different bitrates may be specified
-'           <streamFormat>      - "mp4" or "hls"; used if the streamFormat additional item element not specified
-'           <streamQuality>     - SD or HD
-'           <streamBitrate>     - An integer bitrate in kbps for this stream
-'           <streamUrl>         - The url for the media stream
-'       <synopsis>              - Used as the Description on the item's roSpringboardScreen
-'       <genres>                - One element per genre, used to set the Categories on the item's roSpringboardScreen
-'       <runtime>               - An integer length of the content in seconds
-'
-' Additional item elements allowed:
-'
-'   <description>               - Used as the item's ShortDescriptionLine2 (and Description if <synopsis> is missing)
-'   <streamFormat>              - "mp4" or "hls"
-'   <switchingStrategy>         - The SwitchingStrategy used when <streamFormat> is "hls". Default is "full-adaptation"
-'   <fullHD>                    - "True" if the item was encoded at 1080p resolution
-'   <rating>                    - The Rating, e.g. "PG-13"
-'   <starRating>                - The StarRating, an integer from 1 to 100
-'   <releaseDate>               - The ReleaseDate, a string item in any date format
-'   <director>                  - The Director
-'   <srt>                       - The path to a subtitle's file; sets the SubtitleUrl attribute
-'   <cc>                        - "True" to show the closed-captions indicator
-'   <sdBifUrl>                  - Url for SD trick modes (not yet tested)
-'   <hdBifUrl>                  - Url for HD trick modes (not yet tested)
-'   <actors>                    - One element per actor, used to set the Actors on the item's roSpringboardScreen
-'   <live>                      - "True" if content is for a live stream
-'
 Function parseRokuItem (xml As Object) As Object
 
     item = {}

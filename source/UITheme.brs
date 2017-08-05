@@ -23,13 +23,12 @@ Function uiThemeInit () As Void
     '
     darkTheme   =   {
 
-    ' No logos in this implementation ...
-    REM OverhangPrimaryLogoSD:          "pkg:/images/OverhangPrimaryLogoSD.png"
-    REM OverhangPrimaryLogoOffsetSD_X:  "55"
-    REM OverhangPrimaryLogoOffsetSD_Y:  "34"
-    REM OverhangPrimaryLogoHD:          "pkg:/images/OverhangPrimaryLogoHD.png"
-    REM OverhangPrimaryLogoOffsetHD_X:  "123"
-    REM OverhangPrimaryLogoOffsetHD_Y:  "0"
+    OverhangPrimaryLogoSD:          "pkg:/images/overhang_logo_sd.png"
+    OverhangPrimaryLogoOffsetSD_X:  "55"
+    OverhangPrimaryLogoOffsetSD_Y:  "34"
+    OverhangPrimaryLogoHD:          "pkg:/images/overhang_logo_hd.png"
+    OverhangPrimaryLogoOffsetHD_X:  "123"
+    OverhangPrimaryLogoOffsetHD_Y:  "0"
 
     FilterBannerSliceSD:                "pkg:/images/FilterSliceSD-1x38-1f1f1f.png"     ' solid, single color value of #1f1f1f
     FilterBannerSliceHD:                "pkg:/images/FilterSliceHD-1x60-1f1f1f.png"     ' solid, single color value of #1f1f1f

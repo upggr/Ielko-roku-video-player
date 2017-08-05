@@ -17,20 +17,9 @@
 Function _quote (s As String) As String
     Return Chr (34) + s + Chr (34)
 End Function
-
-'
-' Return True if this device is running in HD mode, otherwise False
-'
 Function _isHD () As Boolean
     Return CreateObject ("roDeviceInfo").GetDisplayType () = "HDTV"
 End Function
-
-'
-' ifDeviceInfo.GetVersion () returns the version number of the Roku firmware.
-' This is a 13-character string, e.g. "034.08E01185A".
-' The 3rd through 6th characters are the major/minor version number ("4.08"), and the 9th through 12th are the build number ("1185").
-' Parse the Roku device info version string and return as integers.
-'
 Function _getRokuVersion () As Object
 
     vsn = {Major: 0, Minor: 0, Build: 0, IsLegacy: True}
@@ -756,9 +745,6 @@ Function _logEvent (proc As String, msg As Dynamic) As Void
                     evStr = "Unknown. Message: " + msg.GetMessage () + " Index: " + msg.GetIndex ().ToStr ()
                 End If
                 _debug (proc + ". " + evType + " [" + msgType + "]-" + evStr)
-            '
-            ' Add more event types here as needed ...
-            '
 
             Else
                 _debug (proc + ". Unexpected Event: " + evType)
@@ -767,9 +753,6 @@ Function _logEvent (proc As String, msg As Dynamic) As Void
     End If
 End Function
 
-'
-' Log _debug messages to the console. Function _DEBUG_ON () must be defined, and must return True (debug logging on) or False (debug logging off)
-'
 Function _debug (message As String, indentString = "" As String) As Void
     If _DEBUG_ON ()
         dt = CreateObject ("roDateTime")
