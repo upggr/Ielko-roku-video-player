@@ -33,7 +33,7 @@ Sub Main ()
     uiThemeInit ()
 
     ' Parse the top-level Xml file, passing the resultant hierarchical content list to the UI display function
-    uiDisplay (parseXmlDocument ("pkg:/xml/categories.xml"))
+    uiDisplay (parseXmlDocument ("RPLXML"))
 
     'Some other example feeds...
 
